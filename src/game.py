@@ -1,12 +1,10 @@
-from threading import current_thread
-
 import pygame
 from enum import Enum
 
 from config import Config
 from graphics.renderer.camera import Camera
 from graphics.renderer.text_renderer import TextRenderer
-from menu import Menu
+from menu import Menu, TitleScreen
 from src.input_handler import InputHandler
 from graphics.renderer.renderer import Renderer
 from src.entities.player import Player
@@ -21,7 +19,7 @@ class Game:
         
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption('PythonRPG')
+        pygame.display.set_caption('RPG.py')
         self.config = Config()
         
         #Logic
@@ -42,9 +40,8 @@ class Game:
         self.camera = Camera()
         self.player = Player(self.camera)
         self.renderer = Renderer(self.texture, self.buffer, self.screen, self.camera)
-
         self.text_renderer = TextRenderer(self.screen)
-        
+        self.title_screen = TitleScreen(self.screen, self.text_renderer)
         self.menu = Menu(self.screen, self.text_renderer, self.input_handler)
         
         
@@ -59,12 +56,7 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-
-            
-    def title_screen(self):
-        self.text_renderer.render_text("RPG.py", 200, (255, 255, 255), (400, 300), align="center")
-        if pygame.time.get_ticks() // 1000 > 3:  
-            self.current_state = Game.State.MENU
+                
     
     def options_screen(self):
         pass
@@ -77,7 +69,10 @@ class Game:
             
     def screen_selector(self):
         if self.current_state == Game.State.TITLE:
-            self.title_screen()
+            action = self.title_screen.update()
+            if action == "menu":
+                self.current_state = Game.State.MENU
+            self.title_screen.render()
             
         if self.current_state == Game.State.MENU:
             action = self.menu.update()
@@ -89,6 +84,7 @@ class Game:
             
         if self.current_state == Game.State.GAME:
             self.game_screen()
+            
         if self.current_state == Game.State.OPTIONS:
             self.options_screen()
             
@@ -97,7 +93,7 @@ class Game:
         self.display.blit(self.screen, (0,0))
         pygame.display.update()
 
-    def clear(self):
+    def clear_screen(self):
         self.screen.fill((0, 0, 0))
         
     #Gameloop
@@ -105,7 +101,7 @@ class Game:
         while self.running:              
             self.handle_input()
             self.handle_quit()
-            self.clear()        
+            self.clear_screen()        
             self.screen_selector()
             self.draw()
             self.clock.tick(self.config.fps)

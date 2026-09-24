@@ -46,3 +46,20 @@ class Menu:
 
             color = (255, 0, 0) if self.hovered_option == option["action"] else (255, 255, 255)
             self.text_renderer.render_text(option["text"], 30, color, (x, y), align="center")
+            
+            
+class TitleScreen:
+    def __init__(self, screen, text_renderer):
+        self.screen = screen
+        self.text_renderer = text_renderer
+        self.start_time = pygame.time.get_ticks()
+        
+    def update(self):
+        if (pygame.time.get_ticks() - self.start_time) // 1000 > 3:
+            return "menu"
+        return None
+
+    def render(self):
+        self.screen.fill((0, 0, 0))
+        self.text_renderer.render_text("RPG.py", 200, (255, 255, 255), (400, 300), align="center")
+        
