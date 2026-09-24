@@ -23,6 +23,7 @@ class InputHandler:
         self.mouse_position = pygame.mouse.get_pos()
         
     def get_input_state(self):
+        #print(self.mouse_buttons_pressed)
         return {
             "keys" : self.keys_pressed,
             "mouse_buttons" : self.mouse_buttons_pressed,

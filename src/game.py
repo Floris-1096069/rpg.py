@@ -1,11 +1,13 @@
+from threading import current_thread
+
 import pygame
 from enum import Enum
 
 from config import Config
 from graphics.renderer.camera import Camera
 from graphics.renderer.text_renderer import TextRenderer
+from menu import Menu
 from src.input_handler import InputHandler
-from dev.test_rect import TestRect
 from graphics.renderer.renderer import Renderer
 from src.entities.player import Player
 
@@ -15,7 +17,6 @@ class Game:
         MENU = "menu"
         GAME = "game"
         OPTIONS = "options"
-        SAVE = "save"
         LOAD = "load"
         
     def __init__(self):
@@ -42,11 +43,9 @@ class Game:
         self.player = Player(self.camera)
         self.renderer = Renderer(self.texture, self.buffer, self.screen, self.camera)
 
-        self.title_renderer = TextRenderer(
-            "PythonRPG", 100, (255, 255, 255),
-            (self.config.resolution[0] // 2, 200), #x - y
-            self.screen, align="center"
-        )
+        self.text_renderer = TextRenderer(self.screen)
+        
+        self.menu = Menu(self.screen, self.text_renderer, self.input_handler)
         
         
     def handle_input(self):
@@ -60,41 +59,46 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-        
-    def clear(self):
-        self.screen.fill((0, 0, 0))
-        
-    def change_state(self):
-        keys = self.input_state["keys"]
-        if pygame.K_m in keys:
-            self.current_state = Game.State.GAME
+
             
     def title_screen(self):
-        self.title_renderer.render_text()
-    
-    def menu_screen(self):
-        pass
+        self.text_renderer.render_text("RPG.py", 200, (255, 255, 255), (400, 300), align="center")
+        if pygame.time.get_ticks() // 1000 > 3:  
+            self.current_state = Game.State.MENU
     
     def options_screen(self):
         pass
     
     def game_screen(self):
-        if self.current_state == Game.State.GAME:
-            self.camera.update(self.input_state)
-            self.renderer.mode7()
-            self.renderer.upscale()
-            self.player.draw(self.screen)
+        self.camera.update(self.input_state)
+        self.renderer.mode7()
+        self.renderer.upscale()
+        self.player.draw(self.screen)
             
     def screen_selector(self):
-        if Game.State.TITLE:
+        if self.current_state == Game.State.TITLE:
             self.title_screen()
-        if Game.State.GAME:
+            
+        if self.current_state == Game.State.MENU:
+            action = self.menu.update()
+            if action == "start_game":
+                self.current_state = Game.State.GAME
+            elif action == "quit":
+                self.running = False
+            self.menu.render()
+            
+        if self.current_state == Game.State.GAME:
             self.game_screen()
+        if self.current_state == Game.State.OPTIONS:
+            self.options_screen()
             
             
     def draw(self):
         self.display.blit(self.screen, (0,0))
         pygame.display.update()
+
+    def clear(self):
+        self.screen.fill((0, 0, 0))
         
     #Gameloop
     def run(self):
@@ -102,7 +106,6 @@ class Game:
             self.handle_input()
             self.handle_quit()
             self.clear()        
-            self.change_state()
             self.screen_selector()
             self.draw()
             self.clock.tick(self.config.fps)
