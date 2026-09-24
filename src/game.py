@@ -3,6 +3,7 @@ from enum import Enum
 
 from config import Config
 from graphics.renderer.camera import Camera
+from graphics.renderer.text_renderer import TextRenderer
 from src.input_handler import InputHandler
 from dev.test_rect import TestRect
 from graphics.renderer.renderer import Renderer
@@ -33,8 +34,6 @@ class Game:
         #Graphics
         self.screen = pygame.Surface(self.config.resolution)
         self.display = pygame.display.set_mode(self.config.resolution)
-        self.test_rect = TestRect(self.screen, self.config)
-
         buffer_width = self.config.resolution[0] // 2
         buffer_height = self.config.resolution[1] // 2
         self.buffer = pygame.Surface((buffer_width, buffer_height))
@@ -42,6 +41,12 @@ class Game:
         self.camera = Camera()
         self.player = Player(self.camera)
         self.renderer = Renderer(self.texture, self.buffer, self.screen, self.camera)
+
+        self.title_renderer = TextRenderer(
+            "PythonRPG", 100, (255, 255, 255),
+            (self.config.resolution[0] // 2, 200), #x - y
+            self.screen, align="center"
+        )
         
         
     def handle_input(self):
@@ -52,7 +57,6 @@ class Game:
         keys = self.input_state["keys"]
         if pygame.K_ESCAPE in keys:
             self.running = False
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -64,15 +68,29 @@ class Game:
         keys = self.input_state["keys"]
         if pygame.K_m in keys:
             self.current_state = Game.State.GAME
-
+            
+    def title_screen(self):
+        self.title_renderer.render_text()
+    
+    def menu_screen(self):
+        pass
+    
+    def options_screen(self):
+        pass
+    
     def game_screen(self):
         if self.current_state == Game.State.GAME:
             self.camera.update(self.input_state)
             self.renderer.mode7()
             self.renderer.upscale()
             self.player.draw(self.screen)
-            #self.test_rect.update(self.input_state)
-            #self.test_rect.draw()
+            
+    def screen_selector(self):
+        if Game.State.TITLE:
+            self.title_screen()
+        if Game.State.GAME:
+            self.game_screen()
+            
             
     def draw(self):
         self.display.blit(self.screen, (0,0))
@@ -85,6 +103,6 @@ class Game:
             self.handle_quit()
             self.clear()        
             self.change_state()
-            self.game_screen()
+            self.screen_selector()
             self.draw()
             self.clock.tick(self.config.fps)
