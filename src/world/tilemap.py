@@ -9,6 +9,7 @@ class TileMap:
         ".": 1,
         "#": 2,
         "p": 3,
+        "$": 4,
     }
     
     SOLID_IDS = {2}
