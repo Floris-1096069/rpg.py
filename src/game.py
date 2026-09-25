@@ -8,6 +8,7 @@ from menu import Menu, TitleScreen
 from src.input_handler import InputHandler
 from graphics.renderer.renderer import Renderer
 from src.entities.player import Player
+from world.tilemap import TileMap
 
 class Game:
     class State(Enum):
@@ -36,11 +37,13 @@ class Game:
         buffer_width = self.config.resolution[0] // 2
         buffer_height = self.config.resolution[1] // 2
         self.buffer = pygame.Surface((buffer_width, buffer_height))
-        self.texture = pygame.image.load("src/graphics/assets/floor_1.png").convert()
-        self.camera = Camera()
+        self.tilemap = TileMap("src/maps/map1.txt", "src/graphics/assets/tiles")
+        self.camera = Camera(self.tilemap)
         self.player = Player(self.camera)
-        self.renderer = Renderer(self.texture, self.buffer, self.screen, self.camera)
+        self.renderer = Renderer(self.tilemap, self.buffer, self.screen, self.camera)
         self.text_renderer = TextRenderer(self.screen)
+        
+        #Menus
         self.title_screen = TitleScreen(self.screen, self.text_renderer)
         self.menu = Menu(self.screen, self.text_renderer, self.input_handler)
         
