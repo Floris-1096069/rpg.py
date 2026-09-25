@@ -7,7 +7,7 @@ from numba import njit
 #do not parallelize, only costs cpu usage for same performance
 @njit(fastmath=True, parallel=False)
 def render_mode7_jit(buffer_array, tileset_array, tile_ids, cos_table, sin_table,
-                     offset_x, offset_y, horizon, scale, tile_size, void_color):
+                     offset_x, offset_y, horizon, scale, tile_size, void_color, fog_start, fog_end):
 
     bh, bw, _ = buffer_array.shape
     map_h, map_w = tile_ids.shape
@@ -18,8 +18,6 @@ def render_mode7_jit(buffer_array, tileset_array, tile_ids, cos_table, sin_table
     distances[distances <= 0] = 1e-6
     row_scales = horizon / distances
 
-    fog_start = 90.0
-    fog_end = 300.0
 
     for y in range(horizon, bh):
         row_scale = row_scales[y - horizon]

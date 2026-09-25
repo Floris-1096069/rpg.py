@@ -19,6 +19,9 @@ class Renderer:
         self.cos_offsets = []
         self.sin_offsets = []
         self.tan_offsets = []
+        tile = tilemap.TILE_SIZE
+        self.fog_start = 6.0 * tile
+        self.fog_end = 18.0 * tile
         for x in range(self.buffer_width):
             angle_offset = (x - self.buffer_width / 2) / self.buffer_width * self.fov
             self.tan_offsets.append(math.tan(angle_offset))
@@ -44,7 +47,8 @@ class Renderer:
             self.camera.x, self.camera.y,
             self.horizon, self.scale,
             self.tilemap.TILE_SIZE,
-            self.void_color,
+            self.void_color, self.fog_start,
+            self.fog_end
         )
 
         del buffer_array

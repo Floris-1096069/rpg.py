@@ -6,8 +6,8 @@ pygame.init()
 pygame.display.set_mode((1, 1))
 
 ROOT = Path(__file__).resolve().parents[2]
-TILE = 16
-OUT = ROOT / "src/graphics/assets/tiles/raw"
+TILE = 64
+OUT = ROOT / "src/graphics/assets/tiles/raw2"
 OUT.mkdir(parents=True, exist_ok=True)
 
 sheets = {

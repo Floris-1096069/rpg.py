@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 class TileMap:
-    TILE_SIZE = 32
+    TILE_SIZE = 64
     
     TILE_CHARS = {
         ".": 1,
