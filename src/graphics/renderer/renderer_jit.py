@@ -18,8 +18,18 @@ def render_mode7_jit(buffer_array, tileset_array, tile_ids, cos_table, sin_table
     distances[distances <= 0] = 1e-6
     row_scales = horizon / distances
 
+    fog_start = 90.0
+    fog_end = 300.0
+
     for y in range(horizon, bh):
         row_scale = row_scales[y - horizon]
+
+        fog_t = (row_scale - fog_start) / (fog_end - fog_start)
+        if fog_t > 1.0:
+            fog_t = 1.0
+        elif fog_t < 0.0:
+            fog_t = 0.0
+
         for x in range(bw):
             wx = int(offset_x + cos_table[x] * row_scale)
             wy = int(offset_y + sin_table[x] * row_scale)
@@ -28,10 +38,9 @@ def render_mode7_jit(buffer_array, tileset_array, tile_ids, cos_table, sin_table
                 tile_id = tile_ids[wy // tile_size, wx // tile_size]
                 py = wy % tile_size
                 px = wx % tile_size
-                buffer_array[y, x, 0] = tileset_array[tile_id, py, px, 0]
-                buffer_array[y, x, 1] = tileset_array[tile_id, py, px, 1]
-                buffer_array[y, x, 2] = tileset_array[tile_id, py, px, 2]
+                for c in range(3):
+                    tile_c = tileset_array[tile_id, py, px, c]
+                    buffer_array[y, x, c] = int(tile_c * (1.0 - fog_t) + void_color[c] * fog_t)
             else:
-                buffer_array[y, x, 0] = void_color[0]
-                buffer_array[y, x, 1] = void_color[1]
-                buffer_array[y, x, 2] = void_color[2]
+                for c in range(3):
+                    buffer_array[y, x, c] = void_color[c]

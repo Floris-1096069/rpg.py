@@ -18,16 +18,18 @@ class Renderer:
         self.void_color = np.array((38, 38, 52), dtype=np.uint8)
         self.cos_offsets = []
         self.sin_offsets = []
+        self.tan_offsets = []
         for x in range(self.buffer_width):
             angle_offset = (x - self.buffer_width / 2) / self.buffer_width * self.fov
-            self.cos_offsets.append(math.cos(angle_offset))
-            self.sin_offsets.append(math.sin(angle_offset))
+            self.tan_offsets.append(math.tan(angle_offset))
 
 
     def mode7(self):
-        angle = self.camera.angle
-        cos_table = [math.cos(angle + o) for o in self.cos_offsets]
-        sin_table = [math.sin(angle + o) for o in self.sin_offsets]
+        a = self.camera.angle
+        cosa = math.cos(a)
+        sina = math.sin(a)
+        dir_x = [cosa - t * sina for t in self.tan_offsets]
+        dir_y = [sina + t * cosa for t in self.tan_offsets]
 
         self.buffer.fill(tuple(self.void_color))
         self.buffer.fill((135, 206, 235), (0, 0, self.buffer_width, self.horizon))
@@ -38,7 +40,7 @@ class Renderer:
             buffer_array,
             self.tilemap.tileset_array,
             self.tilemap.tile_ids,
-            cos_table, sin_table,
+            dir_x, dir_y,
             self.camera.x, self.camera.y,
             self.horizon, self.scale,
             self.tilemap.TILE_SIZE,
