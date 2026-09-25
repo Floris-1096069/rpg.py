@@ -38,8 +38,8 @@ class Game:
         buffer_height = self.config.resolution[1] // 2
         self.buffer = pygame.Surface((buffer_width, buffer_height))
         self.tilemap = TileMap("src/world/maps/map1.txt", "src/graphics/assets/tiles")
-        self.camera = Camera(self.tilemap)
-        self.player = Player(self.camera)
+        self.player = Player(self.tilemap)
+        self.camera = Camera(self.player)
         self.renderer = Renderer(self.tilemap, self.buffer, self.screen, self.camera)
         self.text_renderer = TextRenderer(self.screen)
         
@@ -63,12 +63,13 @@ class Game:
     
     def options_screen(self):
         pass
-    
+
     def game_screen(self):
-        self.camera.update(self.input_state)
+        self.player.update(self.input_state)
+        self.camera.update()
         self.renderer.mode7()
         self.renderer.upscale()
-        self.player.draw(self.screen)
+        self.player.draw(self.screen, self.renderer, self.camera)
             
     def screen_selector(self):
         if self.current_state == Game.State.TITLE:

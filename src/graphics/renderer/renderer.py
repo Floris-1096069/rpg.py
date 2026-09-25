@@ -49,6 +49,9 @@ class Renderer:
 
         del buffer_array
 
+    def world_to_buffer_row(self, distance):
+        return int(self.horizon + (self.buffer_height - self.horizon) * self.scale * self.horizon / distance)
+    
     def upscale(self):
         scaled = pygame.transform.scale(self.buffer, self.screen.get_size())
         self.screen.blit(scaled, (0, 0))
