@@ -37,7 +37,7 @@ class Game:
         buffer_width = self.config.resolution[0] // 2
         buffer_height = self.config.resolution[1] // 2
         self.buffer = pygame.Surface((buffer_width, buffer_height))
-        self.tilemap = TileMap("src/maps/map1.txt", "src/graphics/assets/tiles")
+        self.tilemap = TileMap("src/world/maps/map1.txt", "src/graphics/assets/tiles")
         self.camera = Camera(self.tilemap)
         self.player = Player(self.camera)
         self.renderer = Renderer(self.tilemap, self.buffer, self.screen, self.camera)

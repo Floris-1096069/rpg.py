@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 
 class TileMap:
-    TILE_SIZE = 64
+    TILE_SIZE = 32
     
     TILE_CHARS = {
         ".": 1,
@@ -54,15 +54,20 @@ class TileMap:
         max_id = max(used_ids)
         ts = self.TILE_SIZE
         tileset_array = np.zeros((max_id + 1, ts, ts, 3), dtype=np.uint8)
+        background = pygame.Surface((ts, ts))
+        background.fill((0, 0, 0))
 
         for tile_id in used_ids:
             path = os.path.join(tileset_dir, f"{tile_id}.png")
             if not os.path.isfile(path):
                 raise FileNotFoundError(f"missing tile image: {path}")
-            surface = pygame.image.load(path).convert()
+            surface = pygame.image.load(path).convert_alpha()
             if surface.get_size() != (ts, ts):
-                surface = pygame.transform.scale(surface, (ts, ts))
-            tileset_array[tile_id] = pygame.surfarray.array3d(surface).transpose(1, 0, 2)
+                factor = ts // surface.get_width()
+                surface = pygame.transform.scale_by(surface, factor)
+            background.blit(surface, (0, 0))
+            tileset_array[tile_id] = pygame.surfarray.array3d(background).transpose(1, 0, 2)
+            background.fill((0, 0, 0))
 
         return tileset_array
 
